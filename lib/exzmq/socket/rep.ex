@@ -3,9 +3,10 @@
 ## file, You can obtain one at http://mozilla.org/MPL/2.0/.
 defmodule Exzmq.Socket.Rep do
 
-  defrecord State,  last_recv: :none do
-    record_type last_recv: pid|:none
-  end 
+  #record_type last_recv: pid|:none
+  defmodule State do
+    defstruct last_recv: :none
+  end
 
   ###===================================================================
 
@@ -23,10 +24,10 @@ defmodule Exzmq.Socket.Rep do
   ## @end
   ##--------------------------------------------------------------------
 
-  def init(_opts), do: {:ok, :idle, State.new}
+  def init(_opts), do: {:ok, :idle, %State{}}
 
   def close(_state_name, _transport, mqsstate, state) do
-    state1 = state.update(last_send: :none)
+    state1 = %State{state | last_recv: :none}
     {:next_state, :idle, mqsstate, state1}
   end
 
@@ -56,7 +57,7 @@ defmodule Exzmq.Socket.Rep do
   end
 
   def idle(:do, {:deliver, transport}, mqsstate, state) do
-    state1 = state.update(last_recv:  transport)
+    state1 = %State{state | last_recv:  transport}
     {:next_state, :processing, mqsstate, state1}
   end
 
@@ -82,7 +83,7 @@ defmodule Exzmq.Socket.Rep do
   end
 
   def pending(:do, {:deliver, transport}, mqsstate, state) do
-    state1 = state.update(last_recv: transport)
+    state1 = %State{state | last_recv: transport}
     {:next_state, :processing, mqsstate, state1}
   end
 
@@ -92,12 +93,13 @@ defmodule Exzmq.Socket.Rep do
 
   def processing(:check, {:deliver, _transport}, _mqsstate, _state), do: :queue
 
-  def processing(:check, {:send, _msg}, _mqsstate, State[last_recv: transport]), do: {:ok, transport}
+  def processing(:check, {:send, _msg}, _mqsstate, %State{last_recv: transport}), do: {:ok, transport}
+
 
   def processing(:check, _, _mqsstate, _state), do: {:error, :fsm}
 
   def processing(:do, {:deliver_send, _transport}, mqsstate, state) do
-    state1 = state.update(last_recv: :none)
+    state1 = %State{state | last_recv: :none}
     {:next_state, :idle, mqsstate, state1}
   end
 

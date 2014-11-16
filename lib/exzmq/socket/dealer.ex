@@ -2,10 +2,7 @@
 ## License, v. 2.0. If a copy of the MPL was not distributed with this
 ## file, You can obtain one at http://mozilla.org/MPL/2.0/.
 defmodule Exzmq.Socket.Dealer do
-
-	defrecord State do
-
-	end
+	defmodule State, do: defstruct []
 
 	##===================================================================
 	## API
@@ -26,7 +23,7 @@ defmodule Exzmq.Socket.Dealer do
 	##--------------------------------------------------------------------
 
 	def init(_opts) do
-		{:ok, :idle, State.new}
+		{:ok, :idle, %State{}}
 	end
 
 	def close(_state_name, _transport, mqsstate, state) do
@@ -41,15 +38,15 @@ defmodule Exzmq.Socket.Dealer do
 		Exzmq.simple_decap_msg(msg)
 	end
 
-	def idle(:check, {:send, _msg}, Exzmq.Socket[transports: []], _state) do
+	def idle(:check, {:send, _msg}, %Exzmq.Socket{transports: []}, _state) do
 		{:queue, :block}
 	end
 
-	def idle(:check, {:send, _msg}, Exzmq.Socket[transports: [head|_]], _state) do
+	def idle(:check, {:send, _msg}, %Exzmq.Socket{transports: [head|_]}, _state) do
 		{:ok, head};
 	end
 
-	def idle(:check, :dequeue_send, Exzmq.Socket[transports: [head|_]], _state) do
+	def idle(:check, :dequeue_send, %Exzmq.Socket{transports: [head|_]}, _state) do
 		{:ok, head}
 	end
 

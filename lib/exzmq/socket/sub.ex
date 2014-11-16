@@ -3,8 +3,8 @@
 ## file, You can obtain one at http://mozilla.org/MPL/2.0/.
 defmodule Exzmq.Socket.Sub do
     
-    defrecord State do
-
+  defmodule State do
+    defstruct []
 	end
 
 	##===================================================================
@@ -26,7 +26,7 @@ defmodule Exzmq.Socket.Sub do
 	##--------------------------------------------------------------------
 
     def init(_opts) do
-      {:ok, :idle, State.new}
+      {:ok, :idle, %State{}}
      end
 
     def close(_state_name, _transport, mqsstate, state) do

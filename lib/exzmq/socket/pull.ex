@@ -3,7 +3,8 @@
 ## file, You can obtain one at http://mozilla.org/MPL/2.0/.
 defmodule Exzmq.Socket.Pull do
 
-  defrecord State do
+  defmodule State do
+      defstruct []
   end
 
   ##===================================================================
@@ -18,7 +19,7 @@ defmodule Exzmq.Socket.Pull do
   @type reason :: atom
   @spec init(tuple) :: {:ok, state_name, State.t} | {:stop, reason}
   def init(_opts) do
-    {:ok, :idle, State.new}
+    {:ok, :idle, %State{}}
   end
 
   def close(_state_name, _transport, mqsstate, state) do
